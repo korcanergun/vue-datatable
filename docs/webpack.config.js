@@ -8,11 +8,10 @@ module.exports = {
     path: path.resolve(__dirname, './build'),
     filename: 'app.js'
   },
-
   module: {
     loaders: [
-      { 
-        test: /\.js$/, 
+      {
+        test: /\.js$/,
         loader: 'babel',
         include: [
           path.resolve(__dirname)
@@ -21,7 +20,12 @@ module.exports = {
       { test: /\.vue$/, loader: 'vue' }
     ]
   },
-
+  resolve: {
+    extensions: ['', '.js', '.jsx'],
+    alias: {
+      'vue$': 'vue/dist/vue.min'
+    }
+  },
   vue: {
     loaders: {
       scss: "vue-style!css!sass"

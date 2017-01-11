@@ -21,24 +21,24 @@
         <tr>
           <th v-for="column in dataTable.columns"
               @click="sortBy(column)"
-              :class="{sort: isSortable(column), 
+              :class="{sort: isSortable(column),
                        desc: sort.sortBy === column.value && sort.desc,
                        asc: sort.sortBy === column.value && !sort.desc}">{{column.text}}</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr v-for="row in filteredRows | pagination currentPage dataTable.optionts.pageCount" track-by="$index">
-          <td v-for="(key, item) in row" @click="editField(item, key)">
+        <tr v-for="(row, index) in filteredRowsA " :key="index">
+          <td v-for="(item, key) in row" @click="editField(item, key)">
             <span v-if="!item.editing">
               <template v-if="isButton(key)">
                 <button type="button"
                         v-for="button in item.value"
                         :class="button.class"
-                        @click="button.func($event, key, button)">{{button.text}}</button>
+                        @click="button.func($event, key, button, index)">{{button.text}}</button>
               </template>
               <template v-else>
-                <template v-if="isHTML(key)">{{{item.value}}}</template>
+                <template v-if="isHTML(key)" v-html="item.value"></template>
                 <template v-else>{{item.value}}</template>
               </template>
             </span>
@@ -82,7 +82,7 @@
   </div>
 </template>
 
-<script>
+<script type="text/ecmascript-6">
 export default {
   props: ['dataTable'],
 
@@ -100,7 +100,18 @@ export default {
 
   computed: {
     filteredRows() {
+//      console.log("currentpage"+this.currentPage)
+//      console.log(this.dataTable.rows)
+//      console.log("fif"+this.dataTable.options.pageCount)
+
+      //var obj = this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage);
+      //return this.getPageRows(obj, this.currentPage, this.dataTable.options.pageCount);
       return this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage);
+    },
+    filteredRowsA() {
+
+      return this.getPageRows(this.filteredRows, this.currentPage, this.dataTable.options.pageCount);
+      //return this.filterRows(this.dataTable.rows, this.dataTable.options, this.currentPage);
     },
 
     lastPage() {
@@ -160,7 +171,7 @@ export default {
           const column = this.dataTable.columns.filter((column) => {
             return column.value === key;
           })[0];
-          
+
           row[key] = Object.assign({
             editable: column.editable,
             editing: false,
@@ -192,6 +203,12 @@ export default {
 
   filters: {
     pagination(rows, currentPage, pageCount) {
+//      console.log('1')
+//      console.log(rows);
+//      console.log('2')
+//      console.log("currentpage"+currentPage);
+//      console.log('3')
+//      console.log(pageCount);
       return this.getPageRows(rows, currentPage, pageCount);
     }
   },
@@ -203,7 +220,7 @@ export default {
 
     filterRows(rows, options, currentPage) {
       rows = this.sort.sortBy ? this.sortRows(rows, this.sort.sortBy) : rows;
-      
+
       if(this.searchBy !== '') {
         rows = rows.filter((row) => {
           let r = false;
@@ -230,7 +247,7 @@ export default {
 
     togglePage(page) {
       switch(page) {
-        case 'prev': 
+        case 'prev':
           if(this.currentPage <= 1) return ;
           this.currentPage--;
           break;
@@ -317,185 +334,135 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-  $sortSize: 5px;
-  $tableBorderColor: #111111;
-
-  @mixin singleSortIcon($borderColor) {
-    content: "";
-    position: absolute;
-    border-left: $sortSize solid transparent;
-    border-right: $sortSize solid transparent;
-    border-bottom: 2 * $sortSize solid $borderColor; 
-  }
+<style scoped >
 
   .v-table {
-    table {
-      width: 100%;
-      border-collapse:collapse;
-
-      thead {
-        border-bottom: 1px solid $tableBorderColor;
-
-        th {
-          position: relative;
-          padding: 10px 18px;
-          text-align: left;
-          background-color: #CBCCCD;
-          font-weight: bold;
-
-          &.sort {
-            cursor: pointer;
-
-            &::after {
-              @include singleSortIcon(#FAFAFA);
-              right: $sortSize;
-              top: 50%;
-              margin-top: -(2 * $sortSize);
-            }
-            &::before {
-              @include singleSortIcon(#FAFAFA);
-              right: $sortSize;
-              top: 50%;
-              margin-top: 3px;
-              transform: rotate(180deg);
-            }
-
-            &.desc {
-              &::after {
-                display: none;
-              }
-              &::before {
-                @include singleSortIcon(#333);
-                right: $sortSize;
-                top: 50%;
-                margin-top: -$sortSize;
-              }
-            }
-
-            &.asc {
-              &::before {
-                display: none;
-              }
-              &::after {
-                @include singleSortIcon(#333);
-                right: $sortSize;
-                top: 50%;
-                margin-top: -$sortSize;
-              }
-            }
-          }
-        }
-      }
-
-      tbody {
-        border-bottom: 1px solid $tableBorderColor;
-
-        tr {
-          background-color: #fff;
-          
-          td {
-            text-align: left;
-            padding: 10px 8px;
-          }
-
-          &:nth-child(odd) {
-            background-color: #f9f9f9;
-
-            td:nth-child(1) {
-              background-color: #F1F1F2;
-            }
-          }
-
-          &:nth-child(even) {
-            td:nth-child(1) {
-              background-color: #fafafa;
-            }
-          }
-        }
-      }
-    }
-    
-    & &-header, & &-footer {
-      display: table;
-      height: 40px;
-      width: 100%;
-      line-height: 40px;
-
-      &::after {
-        content: '';
-        clear: both;
-      }
-    }
-
-    & &-header {
-      &-count {
-        float: left;
-      }
-
-      &-search {
-        float: right;
-      }
-    }
-
-    & &-footer {
-      margin-top: 10px;
-
-      &-info {
-        float: left;
-      }
-
-      &-page {
-        font-size: 0;
-        float: right;
-        
-        span {
-          display: inline-block;
-          font-size: 1rem;
-          padding: 10px 15px;
-        }
-        
-        &-btn {
-          display: inline-block;
-          height: 40px;
-          box-sizing: border-box;
-          padding: 0px 15px;
-          line-height: 40px;
-          text-decoration: none;
-          color: #000;
-          border-radius: 2px;
-          font-size: 1rem;
-          
-          &:hover {
-            color: #fff;
-            border-top: 1px solid #333;
-            border-bottom: 1px solid #333;
-            background-color: #333;
-          }
-
-          &:nth-last-child(1) {
-            margin-right: 0;
-          }
-
-          &.disabled {
-            cursor: default;
-            color: #666;
-
-            &:hover {
-              color: #666;
-              background-color: transparent;
-              border: none;
-            }
-          }
-
-          &.current {
-            color: #000;  
-            border: 1px solid #979797;
-            background-color: #fff;
-            background: linear-gradient(to bottom, #fff 0%, #dcdcdc 100%);
-          }
-        }
-      }
-    }
+    margin-top: 120px;
   }
+
+  .v-table table {
+    width: 100%;
+    border-collapse: collapse; }
+  .v-table table thead {
+    border-bottom: 1px solid #111111; }
+  .v-table table thead th {
+    position: relative;
+    padding: 10px 18px;
+    text-align: left;
+    background-color: #CBCCCD;
+    font-weight: bold; }
+  .v-table table thead th.sort {
+    cursor: pointer; }
+  .v-table table thead th.sort::after {
+    content: "";
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid #FAFAFA;
+    right: 5px;
+    top: 50%;
+    margin-top: -10px; }
+  .v-table table thead th.sort::before {
+    content: "";
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid #FAFAFA;
+    right: 5px;
+    top: 50%;
+    margin-top: 3px;
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg); }
+  .v-table table thead th.sort.desc::after {
+    display: none; }
+  .v-table table thead th.sort.desc::before {
+    content: "";
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid #333;
+    right: 5px;
+    top: 50%;
+    margin-top: -5px; }
+  .v-table table thead th.sort.asc::before {
+    display: none; }
+  .v-table table thead th.sort.asc::after {
+    content: "";
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid #333;
+    right: 5px;
+    top: 50%;
+    margin-top: -5px; }
+  .v-table table tbody {
+    border-bottom: 1px solid #111111; }
+  .v-table table tbody tr {
+    background-color: #fff; }
+  .v-table table tbody tr td {
+    text-align: left;
+    padding: 10px 8px; }
+  .v-table table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9; }
+  .v-table table tbody tr:nth-child(odd) td:nth-child(1) {
+    background-color: #F1F1F2; }
+  .v-table table tbody tr:nth-child(even) td:nth-child(1) {
+    background-color: #fafafa; }
+
+  .v-table .v-table-header, .v-table .v-table-footer {
+    display: table;
+    height: 40px;
+    width: 100%;
+    line-height: 40px; }
+  .v-table .v-table-header::after, .v-table .v-table-footer::after {
+    content: '';
+    clear: both; }
+
+  .v-table .v-table-header-count {
+    float: left; }
+
+  .v-table .v-table-header-search {
+    float: right; }
+
+  .v-table .v-table-footer {
+    margin-top: 10px; }
+  .v-table .v-table-footer-info {
+    float: left; }
+  .v-table .v-table-footer-page {
+    font-size: 0;
+    float: right; }
+  .v-table .v-table-footer-page span {
+    display: inline-block;
+    font-size: 1rem;
+    padding: 10px 15px; }
+  .v-table .v-table-footer-page-btn {
+    display: inline-block;
+    height: 40px;
+    box-sizing: border-box;
+    padding: 0px 15px;
+    line-height: 40px;
+    text-decoration: none;
+    color: #000;
+    border-radius: 2px;
+    font-size: 1rem; }
+  .v-table .v-table-footer-page-btn:hover {
+    color: #fff;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    background-color: #333; }
+  .v-table .v-table-footer-page-btn:nth-last-child(1) {
+    margin-right: 0; }
+  .v-table .v-table-footer-page-btn.disabled {
+    cursor: default;
+    color: #666; }
+  .v-table .v-table-footer-page-btn.disabled:hover {
+    color: #666;
+    background-color: transparent;
+    border: none; }
+  .v-table .v-table-footer-page-btn.current {
+    color: #000;
+    border: 1px solid #979797;
+    background-color: #fff;
+    background: -webkit-linear-gradient(top, #fff 0%, #dcdcdc 100%);
+    background: linear-gradient(to bottom, #fff 0%, #dcdcdc 100%); }
 </style>

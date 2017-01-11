@@ -2,10 +2,8 @@ import Vue from 'vue';
 import DataTable from '../src/DataTable.vue';
 import Chance from 'chance';
 
-(function(){
     new Vue({
-        el: 'body',
-
+        el: '#app',
         data: {
             tableData: {
                 options: {
@@ -62,66 +60,67 @@ import Chance from 'chance';
                 }
             }
         },
-
-        ready() {
+      mounted:
+        function () {
+          this.$nextTick(function () {
             const chance = new Chance();
             const length = chance.integer({min: 0, max: 1000});
-            
+
             for(let i = 0; i < length; i++) {
-                const obj = {
-                    id: {
-                        value: i + 1,
-                    },
-                    
-                    name: {
-                        value: chance.name(),
-                        editable: chance.bool()
-                    },
+              const obj = {
+                id: {
+                  value: i + 1,
+                },
 
-                    age: {
-                        value: chance.age(),
-                        editable: chance.bool()
-                    },
+                name: {
+                  value: chance.name(),
+                  editable: chance.bool()
+                },
 
-                    sex: {
-                        value: chance.gender(),
-                        editable: chance.bool
-                    },
+                age: {
+                  value: chance.age(),
+                  editable: chance.bool()
+                },
 
-                    link: {
-                        value: `<a href="${chance.url()}">${chance.url()}</a>`
-                    },
+                sex: {
+                  value: chance.gender(),
+                  editable: chance.bool
+                },
 
-                    action: {
-                        value: [
-                            {
-                                text: 'action1',
-                                class: ['red'],
-                                func: function(event, column, field) {
-                                    console.log('event', event);
-                                    console.log('column', column);
-                                    console.log('field', field);
-                                }
-                            },
-                            {
-                                text: 'action2',
-                                class: ['green'],
-                                func: function(event, column, field) {
-                                    console.log('event', event);
-                                    console.log('column', column);
-                                    console.log('field', field);
-                                }
-                            }
-                        ]
+                link: {
+                  value: `<a href="${chance.url()}">${chance.url()}</a>`
+                },
+
+                action: {
+                  value: [
+                    {
+                      text: 'action1',
+                      class: ['red'],
+                      func: function(event, column, field) {
+                        console.log('event', event);
+                        console.log('column', column);
+                        console.log('field', field);
+                      }
+                    },
+                    {
+                      text: 'action2',
+                      class: ['green'],
+                      func: function(event, column, field) {
+                        console.log('event', event);
+                        console.log('column', column);
+                        console.log('field', field);
+                      }
                     }
+                  ]
                 }
+              }
 
-                this.tableData.rows.push(obj);
+              this.tableData.rows.push(obj);
             }
+            console.log(JSON.stringify(this.$data))
+          })
         },
-
         components: {
             DataTable
         }
-    });
-})();
+    })
