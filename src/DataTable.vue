@@ -35,7 +35,7 @@
                 <button type="button"
                         v-for="button in item.value"
                         :class="button.class"
-                        @click="button.func($event, key, button, index)">{{button.text}}</button>
+                        @click="button.func($event, key, button, index  `)">{{button.text}}</button>
               </template>
               <template v-else>
                 <template v-if="isHTML(key)" v-html="item.value"></template>

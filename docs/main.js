@@ -2,6 +2,7 @@ import Vue from 'vue';
 import DataTable from '../src/DataTable.vue';
 import Chance from 'chance';
 
+
     new Vue({
         el: '#app',
         data: {
