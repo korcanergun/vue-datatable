@@ -1,12 +1,12 @@
 # vue-datatable
-
+> This repository contains updated version of this library for VueJS 2.0
 > A datatable component build with Vuejs.
 
 > You can try it [Online](https://galenyuan.github.io/vue-datatable/), it's Vue version [DataTables](https://github.com/DataTables/DataTables)
 
 ##Usage
 ```bash
-npm install --save vue-datatable
+npm install https://github.com/korcanergun/vue-datatable.git --save
 ```
 Vue-loader and Babel is required(maybe will release ES5 and JavaScript file later :P)
 
